@@ -25,13 +25,31 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
 
-const form = document.querySelector('#contact-form');
-const formNote = document.querySelector('#form-note');
+document.querySelectorAll('.enquiry-form').forEach((form) => {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  formNote.textContent = 'Thanks — your enquiry is ready. Connect this form to your inbox or CRM before launch.';
-  formNote.style.color = '#13743b';
+    const data = new FormData(form);
+    const subject = `CyWareGroups enquiry — ${data.get('service') || 'Security consultation'}`;
+    const body = [
+      `Name: ${data.get('name') || ''}`,
+      `Work email: ${data.get('email') || ''}`,
+      `Company: ${data.get('company') || 'Not provided'}`,
+      `Service: ${data.get('service') || 'Not selected'}`,
+      `Timeline: ${data.get('timeline') || 'Not provided'}`,
+      '',
+      'Goals / context:',
+      data.get('message') || 'Not provided'
+    ].join('\n');
+
+    const formNote = form.querySelector('.form-note');
+    if (formNote) {
+      formNote.textContent = 'Your email app is opening with the enquiry prepared.';
+      formNote.style.color = '#13743b';
+    }
+    window.location.href = `mailto:hello@cywaregroups.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  });
 });
 
 document.querySelector('#year').textContent = new Date().getFullYear();
